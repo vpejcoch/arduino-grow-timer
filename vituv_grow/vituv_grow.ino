@@ -8,7 +8,9 @@ int switchState = 0;
 int pumpRunningTime = 0;
 int pumpRunning = 0;
 int manualPump = 0;
-unsigned long minutes = 0;
+
+//time in hours * 60
+unsigned long minutes = 1350;
 unsigned long MINUTE = 60000;
 unsigned long HOUR = 60 * MINUTE;
 unsigned long THREE_HOURS = 3 * HOUR;
