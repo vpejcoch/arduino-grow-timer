@@ -3,10 +3,13 @@
 int pump = 3;
 int air = 4;
 int light = 5;
+int button = 2;
+int switchState = 0;
 int pumpRunningTime = 0;
 int pumpRunning = 0;
+int manualPump = 0;
 unsigned long minutes = 0;
-unsigned long MINUTE = 1;
+unsigned long MINUTE = 60000;
 unsigned long HOUR = 60 * MINUTE;
 unsigned long THREE_HOURS = 3 * HOUR;
 unsigned long DAY = 24 * HOUR;
@@ -17,6 +20,7 @@ void setup() {
   pinMode(air, OUTPUT);
   pinMode(pump, OUTPUT);
   pinMode(light, OUTPUT);
+  pinMode(button, INPUT);
 }
 
 void runPump() {
@@ -51,11 +55,24 @@ void stopLight() {
   digitalWrite(light, LOW);
 }
 
-void loop() {
+
+void loop() { 
+  switchState = digitalRead(button);
+  
+  if (switchState == HIGH) {
+    manualPump = 1;
+    digitalWrite (pump, HIGH);
+  }
+  else {
+    manualPump = 0;
+    digitalWrite(pump, LOW);
+  }
+  
+  
   if ((millis() % 60000) == 0) {
     minutes++;
     
-      //Serial.println(minutes);
+    Serial.println(minutes);
     
     if (minutes == 2 * HOUR)
       runAir();
@@ -70,13 +87,11 @@ void loop() {
     
     int shouldRunPump = (minutes % (3 * HOUR));
     
-    if (shouldRunPump == 0) {
-      Serial.println(minutes);
-      Serial.println(shouldRunPump);
+    if (!manualPump && shouldRunPump == 0) {
       runPump();
     }
     
-    if (pumpRunning && pumpRunningTime > 3) {
+    if (!manualPump && pumpRunning && pumpRunningTime > 3) {
       stopPump();
       pumpRunningTime = 0;
     }
