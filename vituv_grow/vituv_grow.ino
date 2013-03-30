@@ -52,10 +52,10 @@ void stopLight() {
 }
 
 void loop() {
-    delay(MINUTE);
+  if ((millis() % 60000) == 0) {
     minutes++;
     
-    //Serial.println(minutes);
+      //Serial.println(minutes);
     
     if (minutes == 2 * HOUR)
       runAir();
@@ -64,12 +64,12 @@ void loop() {
       stopAir();
       runLight();
     }
-     
+    
     if (minutes == 18 * HOUR)
       stopLight();
     
     int shouldRunPump = (minutes % (3 * HOUR));
-      
+    
     if (shouldRunPump == 0) {
       Serial.println(minutes);
       Serial.println(shouldRunPump);
@@ -80,9 +80,10 @@ void loop() {
       stopPump();
       pumpRunningTime = 0;
     }
-      
+    
     pumpRunningTime++;
-      
+    
     if (minutes > DAY)
       minutes = 0;
+  }
 }
