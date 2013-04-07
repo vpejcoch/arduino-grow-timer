@@ -1,21 +1,17 @@
-//nastaveni promenne
-
+int button = 2;
 int pump = 3;
 int air = 4;
 int light = 5;
-int button = 2;
-int switchState = 0;
 int pumpRunningTime = 0;
-int pumpRunning = 0;
-int manualPump = 0;
 
-//time in hours * 60
-unsigned long minutes = 300;
-unsigned long MINUTE = 60000;
-unsigned long HOUR = 60 * MINUTE;
-unsigned long THREE_HOURS = 3 * HOUR;
-unsigned long DAY = 24 * HOUR;
+unsigned long time = 0;
+unsigned long oldtime = 0;
 
+// time of the day when you're starting the program (in minutes)
+unsigned long minutes = 0;
+
+// real time simulation at the SPEED value 60000
+int SPEED = 60000;
 
 void setup() {
   Serial.begin(9600);
@@ -28,13 +24,11 @@ void setup() {
 void runPump() {
   Serial.println("Starting pump");
   digitalWrite(pump, HIGH);
-  pumpRunning = 1;
 }
 
 void stopPump() {
   Serial.println("Stopping pump");
   digitalWrite(pump, LOW);
-  pumpRunning = 0;
 }
 
 void runAir() {
@@ -57,51 +51,54 @@ void stopLight() {
   digitalWrite(light, LOW);
 }
 
+void loop() {
+  int pumpState = bitRead(PORTD, pump); 
+  int airState = bitRead(PORTD, air);
+  int lightState = bitRead(PORTD, light);
+  int switchState = digitalRead(button);
+  time = millis();
+ 
+  if (switchState == HIGH && pumpState == 0)
+    runPump();
+  
 
-void loop() { 
-  switchState = digitalRead(button);
-  
-  if (switchState == HIGH) {
-    manualPump = 1;
-    digitalWrite (pump, HIGH);
-    Serial.println("Starting pump");
-  }
-  else {
-    manualPump = 0;
-    digitalWrite(pump, LOW);
-  }
-  
-  
-  if ((millis() % 60000) == 0) {
+  if (switchState == LOW && pumpState == 1) 
+    stopPump();
+    
+  if ((time % SPEED) == 0 && oldtime != time) {
+    Serial.print("Minutes: ");
+    Serial.println(minutes);
+    oldtime = time;
     minutes++;
     
-    Serial.println(minutes);
-    
-    if (minutes == 2 * HOUR)
-      runAir();
-    
-    if (minutes == 6 * HOUR) {
-      stopAir();
-      runLight();
+    if (minutes >= 120 && minutes <= 360) {
+      if (airState == 0)
+        runAir();
     }
+    else if (airState == 1)
+      stopAir();
     
-    if (minutes == 18 * HOUR)
+    if (minutes >= 360 && minutes <= 1080) {
+      if (lightState == 0)
+        runLight();
+    }
+    else if (lightState == 1)
       stopLight();
     
-    int shouldRunPump = (minutes % (3 * HOUR));
+    int shouldRunPump = (minutes % (180));
+    Serial.println(shouldRunPump);
     
-    if (!manualPump && shouldRunPump == 0) {
+    if (shouldRunPump == 0)
       runPump();
-    }
     
-    if (!manualPump && pumpRunning && pumpRunningTime > 3) {
+    if (pumpRunningTime > 3 && pumpState == 1) {
       stopPump();
       pumpRunningTime = 0;
     }
     
     pumpRunningTime++;
     
-    if (minutes > DAY)
+    if (minutes > 1440)
       minutes = 0;
-  }
+  } 
 }
