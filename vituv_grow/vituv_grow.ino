@@ -2,7 +2,10 @@ int button = 2;
 int pump = 3;
 int air = 4;
 int light = 5;
-int pumpRunningTime = 0;
+int pulse = 13;
+
+volatile int manualPump = 0;
+unsigned long pumpRunningTime = 0;
 
 unsigned long time = 0;
 unsigned long oldtime = 0;
@@ -18,6 +21,7 @@ void setup() {
   pinMode(air, OUTPUT);
   pinMode(pump, OUTPUT);
   pinMode(light, OUTPUT);
+  pinMode(pulse, OUTPUT);
   pinMode(button, INPUT);
 }
 
@@ -29,6 +33,7 @@ void runPump() {
 void stopPump() {
   Serial.println("Stopping pump");
   digitalWrite(pump, LOW);
+  pumpRunningTime = 0;
 }
 
 void runAir() {
@@ -53,21 +58,30 @@ void stopLight() {
 
 void loop() {
   int pumpState = bitRead(PORTD, pump); 
-  int airState = bitRead(PORTD, air);
-  int lightState = bitRead(PORTD, light);
+  
   int switchState = digitalRead(button);
   time = millis();
  
-  if (switchState == HIGH && pumpState == 0)
+  if (switchState == HIGH && pumpState == 0) {
+    manualPump = 1;
     runPump();
+  }
   
-
-  if (switchState == LOW && pumpState == 1) 
+  if (switchState == LOW && pumpState == 1 && manualPump == 1) { 
     stopPump();
+    manualPump = 0;
+  }  
     
   if ((time % SPEED) == 0 && oldtime != time) {
-    Serial.print("Minutes: ");
-    Serial.println(minutes);
+    int airState = bitRead(PORTD, air);
+    int lightState = bitRead(PORTD, light);
+    int pulseState = bitRead(PORTB, 5);
+    
+    if (pulseState == LOW) 
+      digitalWrite(pulse, HIGH);
+    else 
+      digitalWrite(pulse, LOW);
+    
     oldtime = time;
     minutes++;
     
@@ -86,18 +100,16 @@ void loop() {
       stopLight();
     
     int shouldRunPump = (minutes % (180));
-    Serial.println(shouldRunPump);
     
     if (shouldRunPump == 0)
       runPump();
     
-    if (pumpRunningTime > 3 && pumpState == 1) {
+    if (pumpState == 1)
+      pumpRunningTime++;
+    
+    if (pumpRunningTime >= 3 && pumpState == 1)
       stopPump();
-      pumpRunningTime = 0;
-    }
-    
-    pumpRunningTime++;
-    
+        
     if (minutes > 1440)
       minutes = 0;
   } 
