@@ -25,34 +25,45 @@ void setup() {
   pinMode(button, INPUT);
 }
 
+void printTime() {
+  Serial.print("Time: ");
+  Serial.print(minutes);
+}
+
 void runPump() {
-  Serial.println("Starting pump");
+  printTime();
+  Serial.println(" Starting pump.");
   digitalWrite(pump, HIGH);
 }
 
 void stopPump() {
-  Serial.println("Stopping pump");
+  printTime();
+  Serial.println(" Stopping pump");
   digitalWrite(pump, LOW);
   pumpRunningTime = 0;
 }
 
 void runAir() {
-  Serial.println("Starting air");
+  printTime();
+  Serial.println(" Starting air");
   digitalWrite(air, HIGH);
 }
 
 void stopAir() {
-  Serial.println("Stopping air");
+  printTime();
+  Serial.println(" Stopping air");
   digitalWrite(air, LOW);
 }
 
 void runLight() {
-  Serial.println("Starting light");
+  printTime();
+  Serial.println(" Starting light");
   digitalWrite(light, HIGH);
 }
 
 void stopLight() {
-  Serial.println("Stopping light");
+  printTime();
+  Serial.println(" Stopping light");
   digitalWrite(light, LOW);
 }
 
