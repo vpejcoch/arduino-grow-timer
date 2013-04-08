@@ -97,17 +97,15 @@ void loop() {
     minutes++;
     
     if (minutes >= 120 && minutes <= 360) {
-      if (airState == 0)
+      if (airState == LOW)
         runAir();
-    }
-    else if (airState == 1)
+    } else if (airState == HIGH)
       stopAir();
     
     if (minutes >= 360 && minutes <= 1080) {
-      if (lightState == 0)
+      if (lightState == LOW)
         runLight();
-    }
-    else if (lightState == 1)
+    } else if (lightState == HIGH)
       stopLight();
     
     int shouldRunPump = (minutes % (180));
@@ -115,10 +113,10 @@ void loop() {
     if (shouldRunPump == 0)
       runPump();
     
-    if (pumpState == 1)
+    if (pumpState == HIGH)
       pumpRunningTime++;
     
-    if (pumpRunningTime >= 3 && pumpState == 1)
+    if (pumpRunningTime >= 3 && pumpState == HIGH)
       stopPump();
         
     if (minutes > 1440)
