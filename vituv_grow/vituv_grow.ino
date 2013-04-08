@@ -11,7 +11,7 @@ unsigned long oldtime = 0;
 unsigned long minutes = 0;
 
 // real time simulation at the SPEED value 60000
-int SPEED = 60000;
+unsigned int SPEED = 60000;
 
 void setup() {
   Serial.begin(9600);
