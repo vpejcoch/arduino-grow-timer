@@ -11,7 +11,7 @@ unsigned long time = 0;
 unsigned long oldtime = 0;
 
 // time of the day when you're starting the program (in minutes)
-unsigned long minutes = 359;
+unsigned long minutes = 160;
 
 // real time simulation at the SPEED value 60000
 unsigned int SPEED = 60000;
@@ -123,3 +123,5 @@ void loop() {
       minutes = 0;
   } 
 }
+
+//Tady jen přidám nějakej text, abych mohl otestovat
